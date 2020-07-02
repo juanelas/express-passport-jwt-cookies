@@ -58,28 +58,10 @@ router.post(
   loginSucceeded
 )
 
-router.get(
-  '/login/github',
-  passport.authenticate(
-    'github',
-    { session: false }
-  )
-)
-
-router.get(
-  '/auth/github/callback',
-  passport.authenticate(
-    'github',
-    {
-      session: false,
-      failureRedirect: '/login'
-    }),
-  loginSucceeded
-)
-
 function loginSucceeded (req, res) {
   const user = req.user
-  /** This is what ends up in our JWT */
+  
+  // This is what ends up in our JWT
   const jwtClaims = {
     sub: user.username,
     iss: config.baseUrl,
@@ -90,12 +72,13 @@ function loginSucceeded (req, res) {
     identityProvider: user.identityProvider
   }
 
-  /** generate a signed json web token and return it in the response */
+  // generate a signed json web token
   const token = jwt.sign(jwtClaims, config.jwt.secret)
 
-  /** assign our jwt to the cookie */
+  // assign our jwt to the cookie
   res.cookie('jwt', token, config.cookieOptions)
-  /** Report success and allow the user to visit the intranet */
+
+  // Report success and allow the user to visit the intranet
   res.send(`
 <h3>Login succeeded!</h3>
 <p>Now you have a valid JWT that can be used to access the fortune-teller server.</p>
