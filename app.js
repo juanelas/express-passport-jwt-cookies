@@ -26,11 +26,11 @@ const https = require('https')
 const fs = require('fs')
 
 const config = require('./config/') // if not specified, a require gets the file index.js in the directory
-const credentials = {
+const options = {
   key: fs.readFileSync(config.tlsServer.privateKey),
   cert: fs.readFileSync(config.tlsServer.certificate)
 }
-var server = https.createServer(credentials, app)
+var server = https.createServer(options, app)
 
 /**
  * Listen on provided port, on all network interfaces.
