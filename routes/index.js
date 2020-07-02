@@ -64,7 +64,7 @@ function _createJwt (user) {
     sub: user.username,
     iss: config.baseUrl,
     aud: config.baseUrl,
-    exp: Math.floor(Date.now() / 1000) + 604800, // 1 weak (7×24×60×60=604800s) from now
+    exp: Math.floor(Date.now() / 1000) + 604800, // 1 week (7×24×60×60=604800s) from now
     name: user.name,
     email: user.email
   }
