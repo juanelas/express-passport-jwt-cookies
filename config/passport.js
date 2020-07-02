@@ -2,7 +2,8 @@
 
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-const { Strategy: JwtStrategy } = require('passport-jwt')
+const JwtStrategy = require('passport-jwt').Strategy
+const GitHubStrategy = require('passport-github').Strategy
 const bcrypt = require('bcrypt')
 
 const config = require('.') // if not specified, a require gets the file index.js in the directory
@@ -23,7 +24,7 @@ passport.use('local', new LocalStrategy(
   },
   function (username, password, done) {
     const user = users.findByUsername(username)
-    if (user && bcrypt.compareSync(password, user.password)) {
+    if (user && user.password && bcrypt.compareSync(password, user.password)) {
       console.log(`username ${username}: good password!`)
       return done(null, user)
     }
@@ -69,5 +70,25 @@ function jwtVerify (jwtPayload, done) {
   console.log(`jwt for user ${jwtPayload.sub} verified but the user is NOT in the db`)
   return done(null, false) //
 }
+
+/**
+ * Before using passport-github, you must register an application with GitHub. If you have not already done so, a new application can be created at developer applications within GitHub's settings panel. Your application will be issued a client ID and client secret, which need to be provided to the strategy. You will also need to configure a callback URL which matches the route in your application.
+ */
+passport.use('github',
+  new GitHubStrategy(
+    {
+      clientID: '46dc017310a82614c071',
+      clientSecret: '071e7dc4c999c1c8619a713f46bc63de63253d05',
+      callbackURL: 'https://localhost:8443/auth/github/callback'
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      let user = users.findByUsername(profile.username)
+      if (!user) {
+        user = users.createUserFromGitHub(profile)
+      }
+      return cb(null, user)
+    }
+  )
+)
 
 module.exports = passport
